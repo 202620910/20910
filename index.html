@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>부산기계공업고등학교 체육시설 예약</title>
+<style>
+  :root {
+    --main: #0d47a1;
+    --main-light: #1565c0;
+    --bg: #f0f4f8;
+    --card: #ffffff;
+    --danger: #c62828;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; }
+  body { background: var(--bg); color: #222; min-height: 100vh; }
+  header {
+    background: linear-gradient(135deg, var(--main), var(--main-light));
+    color: #fff; padding: 28px 20px; text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+  }
+  header h1 { font-size: 26px; margin-bottom: 6px; }
+  header p { font-size: 14px; opacity: .9; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .tab-btn {
+    flex: 1 1 140px; padding: 12px; border: none; border-radius: 8px; cursor: pointer;
+    font-size: 15px; font-weight: 600; background: #dfe7ef; color: #555; transition: .2s;
+  }
+  .tab-btn.active { background: var(--main); color: #fff; }
+  .section { display: none; }
+  .section.active { display: block; }
+  h2 { font-size: 20px; margin: 10px 0 14px; color: var(--main); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .facility-card {
+    background: var(--card); border-radius: 12px; padding: 18px; cursor: pointer;
+    border: 2px solid transparent; box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    transition: .2s; position: relative; overflow: hidden;
+  }
+  .facility-card:hover { transform: translateY(-3px); border-color: var(--main); }
+  .facility-card.selected { border-color: var(--main); background: #e8f0fe; }
+  .facility-card .icon { font-size: 34px; }
+  .facility-card h3 { font-size: 18px; margin: 8px 0 4px; }
+  .capacity-badge {
+    display: inline-block; background: var(--main); color: #fff; border-radius: 20px;
+    padding: 3px 12px; font-size: 13px; font-weight: 600;
+  }
+  .step { background: var(--card); border-radius: 12px; padding: 20px; margin-top: 18px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  .step h3 { font-size: 16px; margin-bottom: 12px; color: var(--main); }
+  .step-num {
+    display: inline-block; width: 24px; height: 24px; background: var(--main); color: #fff;
+    border-radius: 50%; text-align: center; line-height: 24px; font-size: 13px; margin-right: 8px;
+  }
+  input[type="date"], input[type="number"], input[type="text"], input[type="password"], input[type="tel"], select {
+    padding: 10px 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; width: 100%;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 150px; }
+  .slots { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .slot {
+    padding: 10px 16px; border: 1.5px solid #bbb; border-radius: 8px; cursor: pointer;
+    background: #fff; font-size: 14px; transition: .15s; text-align: center;
+  }
+  .slot:hover { border-color: var(--main); }
+  .slot.selected { background: var(--main); color: #fff; border-color: var(--main); }
+  .slot.full { background: #f5f5f5; color: #aaa; cursor: not-allowed; border-color: #ddd; text-decoration: line-through; }
+  .slot .left { display: block; font-size: 11px; margin-top: 3px; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 8px; }
+  .form-grid label { font-size: 13px; color: #555; display: block; margin-bottom: 5px; font-weight: 600; }
+  .btn {
+    padding: 12px 26px; border: none; border-radius: 8px; cursor: pointer;
+    font-size: 16px; font-weight: 700; transition: .2s;
+  }
+  .btn-primary { background: var(--main); color: #fff; }
+  .btn-primary:hover { background: var(--main-light); }
+  .btn-secondary { background: #eceff1; color: #455a64; padding: 12px 26px; }
+  .btn-secondary:hover { background: #dfe4e8; }
+  .btn-cancel { background: #ffebee; color: var(--danger); padding: 6px 14px; font-size: 13px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  .btn-cancel:hover { background: #ffcdd2; }
+  .reservation-item {
+    background: var(--card); border-radius: 10px; padding: 16px; margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08); border-left: 5px solid var(--main);
+  }
+  .reservation-item .info strong { font-size: 16px; }
+  .reservation-item .info .meta { font-size: 13px; color: #666; margin-top: 4px; }
+  .reservation-item.mine { border-left-color: #2e7d32; }
+  .mine-badge { background: #2e7d32; color: #fff; border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 700; margin-left: 6px; }
+  .empty { text-align: center; padding: 40px; color: #999; background: var(--card); border-radius: 12px; }
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: #333; color: #fff; padding: 14px 28px; border-radius: 30px; font-size: 15px;
+    opacity: 0; pointer-events: none; transition: .3s; z-index: 999;
+  }
+  .toast.show { opacity: 1; }
+  .toast.error { background: var(--danger); }
+  .summary { font-size: 15px; background: #e8f0fe; padding: 12px 16px; border-radius: 8px; margin-bottom: 14px; }
+  .member-info { background: #f1f8e9; border: 1px solid #c5e1a5; padding: 12px 16px; border-radius: 8px; font-size: 15px; margin-bottom: 12px; }
+  .profile-box { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .profile-box .pf { font-size: 17px; }
+  .profile-box .pf small { color: #777; display: block; margin-top: 4px; font-size: 13px; }
+  .hint { font-size: 13px; color: #888; margin-top: 8px; }
+  textarea {
+    width: 100%; min-height: 96px; padding: 10px 12px; border: 1px solid #ccc;
+    border-radius: 8px; font-size: 15px; resize: vertical;
+  }
+  .report-item {
+    background: var(--card); border-radius: 10px; padding: 16px; margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08); border-left: 5px solid #ef8f00;
+  }
+  .report-item.mine { border-left-color: #2e7d32; }
+  .report-item .meta { font-size: 13px; color: #666; margin-top: 5px; line-height: 1.6; }
+  .report-item .description { white-space: pre-wrap; margin-top: 10px; line-height: 1.5; }
+  .report-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .report-badge { background: #fff3e0; color: #a65300; border-radius: 12px; padding: 3px 10px; font-size: 12px; font-weight: 700; }
+  .equipment-card {
+    background: var(--card); border-radius: 12px; padding: 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08); border: 1px solid #e1e7ed;
+  }
+  .equipment-card h3 { font-size: 17px; margin: 8px 0 4px; }
+  .equipment-card .equipment-icon { font-size: 30px; }
+  .equipment-card .meta { color: #666; font-size: 13px; margin: 5px 0 14px; }
+  .equipment-card .available { color: #2e7d32; font-weight: 700; }
+  .equipment-controls { display: flex; align-items: center; gap: 8px; }
+  .equipment-controls input { width: 76px; }
+  .equipment-controls .btn { flex: 1; padding: 10px 12px; font-size: 14px; }
+  button:disabled { opacity: .55; cursor: not-allowed; }
+  .loan-item {
+    background: var(--card); border-radius: 10px; padding: 15px; margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08); border-left: 5px solid var(--main);
+  }
+  .loan-item .meta { color: #666; font-size: 13px; margin-top: 4px; }
+  .service-item {
+    background: var(--card); border-radius: 10px; padding: 16px; margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08); border-left: 5px solid #ef8f00;
+  }
+  .service-item .meta { color: #666; font-size: 13px; margin-top: 5px; line-height: 1.6; }
+  .service-item .description { white-space: pre-wrap; margin-top: 10px; line-height: 1.5; }
+  .service-status { display: inline-block; background: #e8f0fe; color: var(--main); border-radius: 12px; padding: 3px 10px; font-size: 12px; font-weight: 700; }
+  .points-summary { background: #fff8e1; border: 1px solid #ffe082; padding: 14px 16px; border-radius: 10px; margin: 12px 0; line-height: 1.7; }
+  .points-summary strong { color: #8d5d00; }
+  .priority-badge { display: inline-block; background: #fff3cd; color: #805b00; border-radius: 12px; padding: 2px 9px; font-size: 12px; font-weight: 700; }
+  .operator-item { background: var(--card); border-radius: 10px; padding: 15px; margin: 10px 0; border-left: 5px solid var(--main); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .operator-item .meta { color: #666; font-size: 13px; margin: 5px 0 10px; }
+  .operator-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .operator-actions .btn { padding: 8px 12px; font-size: 13px; }
+  .admin-nav { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0; }
+  .admin-nav .btn { padding: 9px 14px; font-size: 13px; background: #e3eaf2; color: #334; }
+  .admin-nav .btn.active { background: var(--main); color: #fff; }
+  .admin-view { display: none; }
+  .admin-view.active { display: block; }
+  .admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 12px 0; }
+  .admin-stat { background: var(--card); border-radius: 10px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .admin-stat strong { display: block; color: var(--main); font-size: 22px; margin-top: 4px; }
+  .admin-row { background: var(--card); border-radius: 10px; padding: 14px; margin: 9px 0; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .admin-row .meta { color: #666; font-size: 13px; margin: 5px 0 10px; line-height: 1.6; }
+  .admin-controls { display: flex; align-items: end; flex-wrap: wrap; gap: 8px; }
+  .admin-controls > div { flex: 1; min-width: 90px; }
+  .admin-controls label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; }
+  .admin-controls input, .admin-controls select { padding: 8px; }
+  .admin-controls .btn { padding: 8px 12px; font-size: 13px; }
+  input[type="date"]:disabled { background: #f5f5f5; }
+  @media (max-width: 600px) {
+    header h1 { font-size: 20px; }
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>🏆 부산기계공업고등학교</h1>
+  <p>체육시설 예약 시스템 &mdash; 회원가입 후 시설을 선택하고 원하는 시간에 예약하세요</p>
+</header>
+
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="reserve" onclick="switchTab('reserve')">예약하기</button>
+    <button class="tab-btn" data-tab="list" onclick="switchTab('list')">예약 현황</button>
+    <button class="tab-btn" data-tab="equipment" onclick="switchTab('equipment')">비품 대여</button>
+    <button class="tab-btn" data-tab="service" onclick="switchTab('service')">A/S 접수</button>
+    <button class="tab-btn" data-tab="lost" onclick="switchTab('lost')">분실물 신고</button>
+    <button class="tab-btn" data-tab="admin" onclick="switchTab('admin')">관리자</button>
+    <button class="tab-btn" data-tab="account" onclick="switchTab('account')">로그인 / 회원가입</button>
+  </div>
+
+  <div id="reserve" class="section active">
+    <h2>1. 시설 선택</h2>
+    <div class="grid" id="facilityGrid"></div>
+
+    <div class="step" id="stepDate" style="display:none">
+      <h3><span class="step-num">2</span>날짜 선택</h3>
+      <div class="row">
+        <div><input type="date" id="dateInput" onchange="renderSlots()"></div>
+      </div>
+      <div class="hint" id="reservationWindowHint"></div>
+    </div>
+
+    <div class="step" id="stepSlot" style="display:none">
+      <h3><span class="step-num">3</span>시간 선택 <small id="slotInfo" style="color:#888;font-weight:400"></small></h3>
+      <div class="slots" id="slotList"></div>
+    </div>
+
+    <div class="step" id="stepForm" style="display:none">
+      <h3><span class="step-num">4</span>예약자 정보 확인</h3>
+      <div class="summary" id="summary"></div>
+      <div id="reserveLoginRequired" style="display:none">
+        <div class="empty">🔒 예약은 회원만 가능합니다.<br>로그인 또는 회원가입 후 이용해주세요.<br><br>
+          <button class="btn btn-primary" onclick="switchTab('account')">로그인 / 회원가입 하기</button>
+        </div>
+      </div>
+      <div id="reserveFormBody" style="display:none">
+        <div class="member-info">👤 예약자: <strong id="resMember"></strong></div>
+        <div class="form-grid">
+          <div>
+            <label>사용 인원 (최대 <span id="capText"></span>명)</label>
+            <input type="number" id="resCount" min="1" placeholder="인원수">
+          </div>
+        </div>
+        <div class="hint">같은 회원이 같은 날짜·시간에는 하나의 시설만 예약할 수 있습니다.</div>
+        <div style="margin-top:16px">
+          <button class="btn btn-primary" onclick="submitReservation()">예약 완료</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="list" class="section">
+    <h2>📅 예약 현황</h2>
+    <div class="row" style="margin-bottom:14px">
+      <div><input type="text" id="searchName" placeholder="예약자 이름으로 검색" oninput="renderList()"></div>
+      <div><input type="date" id="searchDate" onchange="renderList()"></div>
+      <div style="max-width:120px"><button class="btn btn-primary" style="width:100%;padding:10px" onclick="clearSearch()">검색 초기화</button></div>
+    </div>
+    <div id="listBox"></div>
+  </div>
+
+  <div id="lost" class="section">
+    <h2>🔎 분실물 신고</h2>
+    <div class="step" style="margin-top:0">
+      <h3>분실한 물건을 신고해주세요</h3>
+      <div id="lostLoginRequired" class="empty" style="display:none">
+        🔒 분실 신고는 회원만 가능합니다.<br>로그인 또는 회원가입 후 신고해주세요.<br><br>
+        <button class="btn btn-primary" onclick="switchTab('account')">로그인 / 회원가입 하기</button>
+      </div>
+      <div id="lostFormBody" style="display:none">
+        <div class="member-info">👤 신고자: <strong id="lostReporter"></strong></div>
+        <div class="form-grid">
+          <div>
+            <label for="lostItem">분실 물건</label>
+            <input type="text" id="lostItem" maxlength="60" placeholder="예: 검은색 지갑">
+          </div>
+          <div>
+            <label for="lostLocation">분실 장소</label>
+            <select id="lostLocation">
+              <option value="운동장">운동장</option>
+              <option value="풋살장">풋살장</option>
+              <option value="족구장">족구장</option>
+              <option value="농구장">농구장</option>
+              <option value="탁구장">탁구장</option>
+              <option value="헬스장">헬스장</option>
+              <option value="당구장">당구장</option>
+              <option value="기타 학교 시설">기타 학교 시설</option>
+            </select>
+          </div>
+          <div>
+            <label for="lostPlaceDetail">장소 상세</label>
+            <input type="text" id="lostPlaceDetail" maxlength="80" placeholder="예: 2층 탈의실">
+          </div>
+          <div>
+            <label for="lostDate">분실 날짜</label>
+            <input type="date" id="lostDate">
+          </div>
+          <div>
+            <label for="lostContact">연락 방법</label>
+            <input type="text" id="lostContact" maxlength="80" placeholder="전화번호 또는 이메일">
+          </div>
+          <div style="grid-column:1 / -1">
+            <label for="lostDescription">물건 특징</label>
+            <textarea id="lostDescription" maxlength="500" placeholder="색상, 브랜드, 특징 등 찾는 데 도움이 되는 내용을 적어주세요."></textarea>
+          </div>
+        </div>
+        <p class="hint">연락 방법은 신고 목록에 공개되니, 연락받을 수 있는 정보를 입력해주세요.</p>
+        <div style="margin-top:14px"><button class="btn btn-primary" onclick="submitLostReport()">분실 신고 등록</button></div>
+      </div>
+    </div>
+
+    <h2 style="margin-top:24px">📋 분실 신고 목록</h2>
+    <div class="row" style="margin-bottom:14px">
+      <div><input type="text" id="lostSearch" placeholder="물건 또는 장소로 검색" oninput="renderLostReports()"></div>
+      <div style="max-width:120px"><button class="btn btn-primary" style="width:100%;padding:10px" onclick="clearLostSearch()">검색 초기화</button></div>
+    </div>
+    <div id="lostReportList"></div>
+  </div>
+
+  <div id="equipment" class="section">
+    <h2>🏀 장소별 비품 대여</h2>
+    <div class="step" style="margin-top:0">
+      <div class="row" style="align-items:center">
+        <div>
+          <label for="equipmentLocation" style="font-size:13px;color:#555;font-weight:600;display:block;margin-bottom:5px">장소 선택</label>
+          <select id="equipmentLocation" onchange="renderEquipment()">
+            <option value="all">전체 장소</option>
+            <option value="field">운동장</option>
+            <option value="futsal">풋살장</option>
+            <option value="jokgu">족구장</option>
+            <option value="basket">농구장</option>
+            <option value="tableten">탁구장</option>
+            <option value="gym">헬스장</option>
+            <option value="billiard">당구장</option>
+          </select>
+        </div>
+      </div>
+      <div id="equipmentLoginRequired" class="member-info" style="display:none;margin-top:14px">
+        🔒 비품을 대여하려면 <button class="btn btn-primary" style="padding:7px 12px;font-size:13px" onclick="switchTab('account')">로그인</button> 해주세요.
+      </div>
+      <div id="equipmentGrid" class="grid" style="margin-top:16px"></div>
+    </div>
+
+    <h2 style="margin-top:24px">📦 내 대여 물품</h2>
+    <div id="myLoans"></div>
+  </div>
+
+  <div id="service" class="section">
+    <h2>🛠️ 시설·비품 A/S 접수</h2>
+    <div class="step" style="margin-top:0">
+      <h3>고장이나 점검이 필요한 내용을 접수해주세요</h3>
+      <div id="serviceLoginRequired" class="empty" style="display:none">
+        🔒 A/S 접수는 회원만 가능합니다.<br>로그인 또는 회원가입 후 이용해주세요.<br><br>
+        <button class="btn btn-primary" onclick="switchTab('account')">로그인 / 회원가입 하기</button>
+      </div>
+      <div id="serviceFormBody" style="display:none">
+        <div class="member-info">👤 접수자: <strong id="serviceRequester"></strong></div>
+        <div class="form-grid">
+          <div>
+            <label for="serviceLocation">장소</label>
+            <select id="serviceLocation" onchange="renderServiceTargets()">
+              <option value="field">운동장</option>
+              <option value="futsal">풋살장</option>
+              <option value="jokgu">족구장</option>
+              <option value="basket">농구장</option>
+              <option value="tableten">탁구장</option>
+              <option value="gym">헬스장</option>
+              <option value="billiard">당구장</option>
+            </select>
+          </div>
+          <div>
+            <label for="serviceTarget">A/S 대상</label>
+            <select id="serviceTarget"></select>
+          </div>
+          <div>
+            <label for="serviceType">요청 유형</label>
+            <select id="serviceType">
+              <option value="고장">고장</option>
+              <option value="파손">파손</option>
+              <option value="점검 요청">점검 요청</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
+          <div>
+            <label for="serviceContact">연락 방법</label>
+            <input type="text" id="serviceContact" maxlength="80" placeholder="전화번호 또는 이메일">
+          </div>
+          <div style="grid-column:1 / -1">
+            <label for="serviceDescription">고장·점검 내용</label>
+            <textarea id="serviceDescription" maxlength="500" placeholder="문제 증상과 발생 위치를 자세히 적어주세요."></textarea>
+          </div>
+        </div>
+        <p class="hint">연락 방법은 본인의 A/S 접수 내역에서만 확인할 수 있습니다.</p>
+        <div style="margin-top:14px"><button class="btn btn-primary" onclick="submitServiceRequest()">A/S 접수하기</button></div>
+      </div>
+    </div>
+
+    <h2 style="margin-top:24px">🧾 내 A/S 접수 내역</h2>
+    <div id="myServiceRequests"></div>
+  </div>
+
+  <div id="admin" class="section">
+    <h2>🛡️ 관리자 관리</h2>
+    <div class="step" style="margin-top:0">
+      <div id="operatorLoginBox">
+        <h3>관리자 로그인</h3>
+        <p class="hint" style="margin:0 0 12px">관리자 계정으로 예약, 회원, 시설, 비품, 신고를 관리합니다.</p>
+        <div class="row" style="align-items:center">
+          <div><input type="text" id="operatorUsername" placeholder="관리자 아이디" autocomplete="username" onkeydown="if(event.key==='Enter')operatorLogin()"></div>
+          <div><input type="password" id="operatorPassword" placeholder="관리자 비밀번호" autocomplete="current-password" onkeydown="if(event.key==='Enter')operatorLogin()"></div>
+          <div style="flex:0 0 auto"><button class="btn btn-primary" onclick="operatorLogin()">로그인</button></div>
+        </div>
+      </div>
+      <div id="operatorPanel" style="display:none">
+        <div class="profile-box">
+          <p class="hint">변경 사항은 이 브라우저에 저장됩니다.</p>
+          <button class="btn btn-secondary" onclick="operatorLogout()">운영자 로그아웃</button>
+        </div>
+        <div class="admin-nav">
+          <button class="btn active" data-admin-view="overview" onclick="switchAdminView('overview')">요약</button>
+          <button class="btn" data-admin-view="reservations" onclick="switchAdminView('reservations')">예약·출결</button>
+          <button class="btn" data-admin-view="members" onclick="switchAdminView('members')">회원·포인트</button>
+          <button class="btn" data-admin-view="facilities" onclick="switchAdminView('facilities')">시설</button>
+          <button class="btn" data-admin-view="equipment" onclick="switchAdminView('equipment')">비품·대여</button>
+          <button class="btn" data-admin-view="lost" onclick="switchAdminView('lost')">분실 신고</button>
+          <button class="btn" data-admin-view="services" onclick="switchAdminView('services')">A/S 접수</button>
+          <button class="btn" data-admin-view="settings" onclick="switchAdminView('settings')">운영 정책</button>
+        </div>
+        <div class="admin-view active" data-admin-panel="overview">
+          <h3>관리 현황</h3><div class="admin-stats" id="adminSummary"></div>
+        </div>
+        <div class="admin-view" data-admin-panel="reservations">
+          <h3>예약·출결 관리</h3><p class="hint">예약 종료 후 이용 완료 또는 노쇼를 처리하면 포인트가 자동 반영됩니다.</p>
+          <div id="operatorReservations"></div>
+        </div>
+        <div class="admin-view" data-admin-panel="members"><h3>회원·포인트 관리</h3><div id="adminMembers"></div></div>
+        <div class="admin-view" data-admin-panel="facilities"><h3>시설 관리</h3><div id="adminFacilities"></div></div>
+        <div class="admin-view" data-admin-panel="equipment"><h3>비품·대여 관리</h3><div id="adminEquipment"></div><div id="adminLoans" style="margin-top:18px"></div></div>
+        <div class="admin-view" data-admin-panel="lost"><h3>분실 신고 관리</h3><div id="adminLost"></div></div>
+        <div class="admin-view" data-admin-panel="services"><h3>A/S 접수 관리</h3><div id="adminServices"></div></div>
+        <div class="admin-view" data-admin-panel="settings">
+          <h3>포인트·예약 정책</h3>
+          <div class="form-grid">
+            <div><label for="policy-attendanceReward">이용 완료 포인트</label><input type="number" id="policy-attendanceReward" min="1"></div>
+            <div><label for="policy-noShowPenalty">노쇼 차감 포인트</label><input type="number" id="policy-noShowPenalty" min="1"></div>
+            <div><label for="policy-priorityThreshold">우선예약권 지급 기준 포인트</label><input type="number" id="policy-priorityThreshold" min="100"></div>
+            <div><label for="policy-noShowLimit">예약 제한이 적용되는 누적 노쇼 횟수</label><input type="number" id="policy-noShowLimit" min="1"></div>
+            <div><label for="policy-restrictionHours">예약 제한 시간</label><input type="number" id="policy-restrictionHours" min="1"></div>
+            <div><label for="policy-normalWindowDays">일반 예약 가능 기간 (일)</label><input type="number" id="policy-normalWindowDays" min="1"></div>
+            <div><label for="policy-priorityWindowDays">우선권 보유자 예약 가능 기간 (일)</label><input type="number" id="policy-priorityWindowDays" min="2"></div>
+          </div>
+          <p class="hint" id="policySummary"></p>
+          <div style="margin-top:14px"><button class="btn btn-primary" onclick="saveAdminPolicy()">운영 정책 저장</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="account" class="section">
+    <div id="loggedOutArea">
+      <h2>🔐 로그인</h2>
+      <div class="step" style="margin-top:0">
+        <div class="form-grid" style="margin-top:0">
+          <div>
+            <label>아이디</label>
+            <input type="text" id="loginId" placeholder="아이디" onkeydown="if(event.key==='Enter')login()">
+          </div>
+          <div>
+            <label>비밀번호</label>
+            <input type="password" id="loginPw" placeholder="비밀번호" onkeydown="if(event.key==='Enter')login()">
+          </div>
+        </div>
+        <div style="margin-top:14px"><button class="btn btn-primary" onclick="login()">로그인</button></div>
+      </div>
+
+      <h2>📝 회원가입</h2>
+      <div class="step" style="margin-top:0">
+        <div class="form-grid">
+          <div><label>아이디 (4~20자)</label><input type="text" id="suId" placeholder="예: student2026"></div>
+          <div><label>비밀번호 (4자 이상)</label><input type="password" id="suPw" placeholder="비밀번호"></div>
+          <div><label>비밀번호 확인</label><input type="password" id="suPw2" placeholder="비밀번호 확인"></div>
+          <div><label>이름</label><input type="text" id="suName" placeholder="홍길동"></div>
+          <div><label>학반</label><input type="text" id="suClass" placeholder="예: 2학년 3반"></div>
+          <div><label>전화번호</label><input type="tel" id="suPhone" autocomplete="tel" placeholder="010-1234-5678"></div>
+        </div>
+        <div style="margin-top:14px"><button class="btn btn-primary" onclick="signup()">가입하기</button></div>
+      </div>
+    </div>
+
+    <div id="loggedInArea" style="display:none">
+      <h2>👤 내 정보</h2>
+      <div class="step" style="margin-top:0">
+        <div class="profile-box">
+          <div class="pf" id="profileBox"></div>
+          <button class="btn btn-secondary" onclick="logout()">로그아웃</button>
+        </div>
+        <div class="points-summary" id="pointsSummary"></div>
+        <div class="form-grid" style="margin-top:16px">
+          <div>
+            <label for="profilePhone">알림 전화번호</label>
+            <input type="tel" id="profilePhone" autocomplete="tel" placeholder="010-1234-5678">
+          </div>
+        </div>
+        <div style="margin-top:10px"><button class="btn btn-secondary" onclick="updatePhone()">전화번호 저장</button></div>
+        <p class="hint">예약 완료 문자와 이용 15분 전 알림을 받을 번호입니다.</p>
+      </div>
+
+      <h2>📅 내 예약</h2>
+      <div id="myBox"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const FACILITIES = [
+  { id: 'field',    name: '운동장',   cap: 25, icon: '⚽' },
+  { id: 'futsal',   name: '풋살장',   cap: 15, icon: '🥅' },
+  { id: 'jokgu',    name: '족구장',   cap: 10, icon: '🏐' },
+  { id: 'basket',   name: '농구장',   cap: 15, icon: '🏀' },
+  { id: 'tableten', name: '탁구장',   cap: 8,  icon: '🏓' },
+  { id: 'gym',      name: '헬스장',   cap: 7,  icon: '🏋️' },
+  { id: 'billiard', name: '당구장',   cap: 8,  icon: '🎱' }
+];
+
+const EQUIPMENT = [
+  { id: 'field-ball', facilityId: 'field', facilityName: '운동장', name: '축구공', icon: '⚽', stock: 8 },
+  { id: 'field-vest', facilityId: 'field', facilityName: '운동장', name: '팀 조끼', icon: '🦺', stock: 20 },
+  { id: 'field-cone', facilityId: 'field', facilityName: '운동장', name: '라바콘', icon: '🔺', stock: 20 },
+  { id: 'futsal-ball', facilityId: 'futsal', facilityName: '풋살장', name: '풋살공', icon: '🥅', stock: 8 },
+  { id: 'futsal-vest', facilityId: 'futsal', facilityName: '풋살장', name: '팀 조끼', icon: '🦺', stock: 15 },
+  { id: 'futsal-cone', facilityId: 'futsal', facilityName: '풋살장', name: '라바콘', icon: '🔺', stock: 12 },
+  { id: 'jokgu-ball', facilityId: 'jokgu', facilityName: '족구장', name: '족구공', icon: '🏐', stock: 6 },
+  { id: 'jokgu-net', facilityId: 'jokgu', facilityName: '족구장', name: '족구 네트', icon: '🥅', stock: 2 },
+  { id: 'basket-ball', facilityId: 'basket', facilityName: '농구장', name: '농구공', icon: '🏀', stock: 8 },
+  { id: 'basket-vest', facilityId: 'basket', facilityName: '농구장', name: '팀 조끼', icon: '🦺', stock: 12 },
+  { id: 'tableten-racket', facilityId: 'tableten', facilityName: '탁구장', name: '탁구 라켓', icon: '🏓', stock: 12 },
+  { id: 'tableten-ball', facilityId: 'tableten', facilityName: '탁구장', name: '탁구공 세트', icon: '⚪', stock: 10 },
+  { id: 'gym-mat', facilityId: 'gym', facilityName: '헬스장', name: '운동 매트', icon: '🧘', stock: 10 },
+  { id: 'gym-rope', facilityId: 'gym', facilityName: '헬스장', name: '줄넘기', icon: '➰', stock: 10 },
+  { id: 'billiard-cue', facilityId: 'billiard', facilityName: '당구장', name: '당구 큐', icon: '🎱', stock: 8 },
+  { id: 'billiard-chalk', facilityId: 'billiard', facilityName: '당구장', name: '당구 초크', icon: '🟦', stock: 10 }
+];
+
+const DEFAULT_ADMIN_POLICY = {
+  attendanceReward: 100, noShowPenalty: 100, priorityThreshold: 500,
+  noShowLimit: 3, restrictionHours: 24, normalWindowDays: 7, priorityWindowDays: 14
+};
+
+function getSlotsForDate(dateStr) {
+  const day = new Date(dateStr + 'T00:00:00').getDay();
+  if (day === 0) {
+    return [
+      { label: '15:00 ~ 16:00' },
+      { label: '16:00 ~ 17:00' },
+      { label: '17:00 ~ 18:00' },
+      { label: '18:00 ~ 19:00' },
+      { label: '19:00 ~ 20:00' },
+      { label: '20:00 ~ 20:30' }
+    ];
+  }
+  if (day >= 1 && day <= 5) {
+    return [
+      { label: '16:30 ~ 17:30' },
+      { label: '17:30 ~ 18:30' },
+      { label: '18:30 ~ 19:30' },
+      { label: '19:30 ~ 20:30' }
+    ];
+  }
+  return [];
+}
+
+let selectedFacility = null;
+let selectedSlot = null;
+let reservations = JSON.parse(localStorage.getItem('bmaco_reservations') || '[]');
+let users = JSON.parse(localStorage.getItem('bmaco_users') || '[]');
+let lostReports = JSON.parse(localStorage.getItem('bmaco_lost_reports') || '[]');
+let equipmentLoans = JSON.parse(localStorage.getItem('bmaco_equipment_loans') || '[]');
+let serviceRequests = JSON.parse(localStorage.getItem('bmaco_service_requests') || '[]');
+let facilitySettings = JSON.parse(localStorage.getItem('bmaco_facility_settings') || '{}');
+let equipmentStocks = JSON.parse(localStorage.getItem('bmaco_equipment_stocks') || '{}');
+let equipmentNames = JSON.parse(localStorage.getItem('bmaco_equipment_names') || '{}');
+let adminPolicy = { ...DEFAULT_ADMIN_POLICY, ...JSON.parse(localStorage.getItem('bmaco_admin_policy') || '{}') };
+let currentUser = null;
+let operatorToken = sessionStorage.getItem('bmaco_operator_token') || '';
+
+(function restoreSession() {
+  const id = localStorage.getItem('bmaco_session');
+  if (id) currentUser = users.find(u => u.id === id && u.active !== false) || null;
+  if (!currentUser) localStorage.removeItem('bmaco_session');
+})();
+
+function save() { localStorage.setItem('bmaco_reservations', JSON.stringify(reservations)); }
+function saveUsers() { localStorage.setItem('bmaco_users', JSON.stringify(users)); }
+function saveLostReports() { localStorage.setItem('bmaco_lost_reports', JSON.stringify(lostReports)); }
+function saveEquipmentLoans() { localStorage.setItem('bmaco_equipment_loans', JSON.stringify(equipmentLoans)); }
+function saveServiceRequests() { localStorage.setItem('bmaco_service_requests', JSON.stringify(serviceRequests)); }
+function saveFacilitySettings() { localStorage.setItem('bmaco_facility_settings', JSON.stringify(facilitySettings)); }
+function saveEquipmentStocks() { localStorage.setItem('bmaco_equipment_stocks', JSON.stringify(equipmentStocks)); }
+function saveEquipmentNames() { localStorage.setItem('bmaco_equipment_names', JSON.stringify(equipmentNames)); }
+function saveAdminPolicyStorage() { localStorage.setItem('bmaco_admin_policy', JSON.stringify(adminPolicy)); }
+
+function getPolicy(key) {
+  const value = Number(adminPolicy[key]);
+  return Number.isFinite(value) && value > 0 ? value : DEFAULT_ADMIN_POLICY[key];
+}
+
+function getFacilityCapacity(facility) {
+  const capacity = Number(facilitySettings[facility.id]?.cap);
+  return Number.isInteger(capacity) && capacity > 0 ? capacity : facility.cap;
+}
+
+function isFacilityOpen(facility) {
+  return facilitySettings[facility.id]?.open !== false;
+}
+
+function getEquipmentStock(item) {
+  return Number.isInteger(Number(equipmentStocks[item.id])) && Number(equipmentStocks[item.id]) >= 0
+    ? Number(equipmentStocks[item.id]) : item.stock;
+}
+
+function getEquipmentName(item) {
+  return String(equipmentNames[item.id] || item.name);
+}
+
+function dateAfter(days) {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + days);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function updateReservationWindow() {
+  const hasPriorityTicket = Number(currentUser?.priorityTickets || 0) > 0;
+  const normalDays = getPolicy('normalWindowDays');
+  const priorityDays = getPolicy('priorityWindowDays');
+  document.getElementById('dateInput').max = dateAfter(hasPriorityTicket ? priorityDays : normalDays);
+  document.getElementById('reservationWindowHint').textContent = hasPriorityTicket
+    ? `일반 예약은 ${normalDays}일 이내, 우선예약권 ${currentUser.priorityTickets}장으로 최대 ${priorityDays}일 전까지 예약할 수 있습니다. 일반 기간 이후 예약 시 1장이 사용됩니다.`
+    : `일반 예약은 오늘부터 ${normalDays}일 이내 가능합니다. 누적 적립 ${getPolicy('priorityThreshold')}점마다 우선예약권 1장이 지급됩니다.`;
+}
+
+async function isOperatorAuthorized() {
+  if (!operatorToken) return false;
+  try {
+    const response = await fetch('/api/admin/validate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: operatorToken })
+    });
+    if (response.ok) return true;
+  } catch (e) {}
+  operatorToken = '';
+  sessionStorage.removeItem('bmaco_operator_token');
+  return false;
+}
+
+async function operatorLogin() {
+  const username = document.getElementById('operatorUsername').value.trim();
+  const password = document.getElementById('operatorPassword').value;
+  if (!username || !password) return showToast('관리자 아이디와 비밀번호를 입력해주세요.', true);
+  try {
+    const response = await fetch('/api/admin/verify', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const result = await response.json();
+    if (!response.ok) return showToast(result.error || '관리자 로그인을 할 수 없습니다.', true);
+    operatorToken = result.token;
+    sessionStorage.setItem('bmaco_operator_token', operatorToken);
+    document.getElementById('operatorUsername').value = '';
+    document.getElementById('operatorPassword').value = '';
+    showToast('관리자 로그인되었습니다.');
+    renderOperatorReservations();
+  } catch (e) {
+    showToast('관리자 인증 서버에 연결할 수 없습니다.', true);
+  }
+}
+
+function operatorLogout() {
+  operatorToken = '';
+  sessionStorage.removeItem('bmaco_operator_token');
+  renderOperatorReservations();
+  showToast('관리자 로그아웃되었습니다.');
+}
+
+async function renderOperatorReservations() {
+  const authorized = await isOperatorAuthorized();
+  document.getElementById('operatorLoginBox').style.display = authorized ? 'none' : 'block';
+  document.getElementById('operatorPanel').style.display = authorized ? 'block' : 'none';
+  if (!authorized) return;
+
+  renderAdminOverview();
+  const activePanel = document.querySelector('.admin-view.active')?.dataset.adminPanel || 'overview';
+  renderAdminPanel(activePanel);
+}
+
+function switchAdminView(view) {
+  document.querySelectorAll('[data-admin-view]').forEach(button =>
+    button.classList.toggle('active', button.dataset.adminView === view));
+  document.querySelectorAll('.admin-view').forEach(panel =>
+    panel.classList.toggle('active', panel.dataset.adminPanel === view));
+  renderAdminPanel(view);
+}
+
+function renderAdminOverview() {
+  const activeReservations = reservations.filter(item => !item.attendanceStatus).length;
+  const activeLoans = equipmentLoans.filter(item => !item.returnedAt).length;
+  const unresolvedLost = lostReports.filter(item => item.status !== '반환 완료').length;
+  const openServiceRequests = serviceRequests.filter(item => item.status !== '처리 완료').length;
+  document.getElementById('adminSummary').innerHTML = `
+    <div class="admin-stat">회원<strong>${users.length}명</strong></div>
+    <div class="admin-stat">출결 대기 예약<strong>${activeReservations}건</strong></div>
+    <div class="admin-stat">대여 중 비품<strong>${activeLoans}건</strong></div>
+    <div class="admin-stat">미해결 분실 신고<strong>${unresolvedLost}건</strong></div>
+    <div class="admin-stat">미완료 A/S<strong>${openServiceRequests}건</strong></div>`;
+}
+
+function renderAdminPanel(view) {
+  if (view === 'overview') renderAdminOverview();
+  if (view === 'reservations') renderAdminReservations();
+  if (view === 'members') renderAdminMembers();
+  if (view === 'facilities') renderAdminFacilities();
+  if (view === 'equipment') {
+    renderAdminEquipment();
+    renderAdminLoans();
+  }
+  if (view === 'lost') renderAdminLostReports();
+  if (view === 'services') renderAdminServiceRequests();
+  if (view === 'settings') renderAdminPolicy();
+}
+
+function renderAdminReservations() {
+  const list = [...reservations].sort((a, b) => (a.date + a.slot).localeCompare(b.date + b.slot));
+  const box = document.getElementById('operatorReservations');
+  if (!list.length) {
+    box.innerHTML = '<div class="empty">예약 내역이 없습니다.</div>';
+    return;
+  }
+  box.innerHTML = list.map(reservation => {
+    const status = reservation.attendanceStatus;
+    const ended = getReservationEndTime(reservation) <= Date.now();
+    const statusText = status === 'attended' ? '이용 완료 처리됨' : status === 'no-show' ? '노쇼 처리됨' : ended ? '출결 처리 대기' : '이용 시간 종료 후 처리 가능';
+    return `
+      <div class="operator-item">
+        <strong>${escapeHtml(reservation.name)} (${escapeHtml(reservation.cls)}) · ${escapeHtml(reservation.facilityName)}</strong>
+        <div class="meta">📅 ${escapeHtml(reservation.date)} | 🕐 ${escapeHtml(reservation.slot)} | 👥 ${escapeHtml(reservation.count)}명<br>${statusText}${reservation.priorityTicketUsed ? ' · 우선예약권 사용' : ''}</div>
+        ${status ? '' : `<div class="operator-actions">
+          <button class="btn btn-primary" onclick="processAttendance(${Number(reservation.id)}, 'attended')" ${ended ? '' : 'disabled'}>이용 완료 (+${getPolicy('attendanceReward')}점)</button>
+          <button class="btn-cancel" onclick="processAttendance(${Number(reservation.id)}, 'no-show')" ${ended ? '' : 'disabled'}>노쇼 처리 (-${getPolicy('noShowPenalty')}점)</button>
+          <button class="btn-cancel" onclick="adminCancelReservation(${Number(reservation.id)})">예약 삭제</button>
+        </div>`}
+      </div>`;
+  }).join('');
+}
+
+function renderAdminMembers() {
+  const box = document.getElementById('adminMembers');
+  if (!users.length) {
+    box.innerHTML = '<div class="empty">가입 회원이 없습니다.</div>';
+    return;
+  }
+  box.innerHTML = users.map(user => {
+    const id = escapeHtml(user.id);
+    const blockUntil = Date.parse(user.reservationBlockedUntil || '') || 0;
+    const blockText = blockUntil > Date.now() ? `예약 제한 해제: ${new Date(blockUntil).toLocaleString('ko-KR')}` : '예약 제한 없음';
+    return `
+      <div class="admin-row">
+        <strong>${escapeHtml(user.name)} (${escapeHtml(user.cls)}) · ${escapeHtml(user.username)}</strong>
+        <div class="meta">이용 ${Number(user.attendanceCount || 0)}회 · 노쇼 ${Number(user.noShowCount || 0)}회 · ${blockText} · 계정 ${user.active === false ? '정지' : '사용 중'}</div>
+        <div class="admin-controls">
+          <div><label>이름</label><input id="admin-name-${id}" value="${escapeHtml(user.name)}"></div>
+          <div><label>학반</label><input id="admin-class-${id}" value="${escapeHtml(user.cls)}"></div>
+          <div><label>전화번호</label><input id="admin-phone-${id}" value="${escapeHtml(user.phone || '')}"></div>
+          <div><label>포인트</label><input type="number" id="admin-points-${id}" value="${Number(user.points || 0)}"></div>
+          <div><label>우선예약권</label><input type="number" id="admin-tickets-${id}" min="0" value="${Number(user.priorityTickets || 0)}"></div>
+          <div><label>비밀번호 재설정 (선택)</label><input type="password" id="admin-password-${id}" placeholder="변경할 때만 입력"></div>
+          <button class="btn btn-primary" onclick="saveAdminMember('${id}')">회원 정보 저장</button>
+          <button class="btn btn-secondary" onclick="clearMemberRestriction('${id}')">예약 제한 해제</button>
+          <button class="btn-cancel" onclick="toggleMemberActive('${id}')">${user.active === false ? '계정 활성화' : '계정 정지'}</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderAdminFacilities() {
+  document.getElementById('adminFacilities').innerHTML = FACILITIES.map(facility => {
+    const id = escapeHtml(facility.id);
+    const open = isFacilityOpen(facility);
+    return `
+      <div class="admin-row">
+        <strong>${escapeHtml(facility.icon)} ${escapeHtml(facility.name)}</strong>
+        <div class="admin-controls" style="margin-top:10px">
+          <div><label>최대 예약 인원</label><input type="number" id="facility-cap-${id}" min="1" max="500" value="${getFacilityCapacity(facility)}"></div>
+          <button class="btn btn-primary" onclick="saveFacilityCapacity('${id}')">인원 저장</button>
+          <button class="btn ${open ? 'btn-secondary' : 'btn-primary'}" onclick="toggleFacilityOpen('${id}')">${open ? '예약 접수 중 · 중지하기' : '예약 중지 · 다시 열기'}</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderAdminEquipment() {
+  document.getElementById('adminEquipment').innerHTML = EQUIPMENT.map(item => {
+    const id = escapeHtml(item.id);
+    return `
+      <div class="admin-row">
+        <strong>${escapeHtml(item.facilityName)} · ${escapeHtml(getEquipmentName(item))}</strong>
+        <div class="admin-controls" style="margin-top:10px">
+          <div><label>비품명</label><input id="equipment-name-${id}" value="${escapeHtml(getEquipmentName(item))}"></div>
+          <div><label>보유 수량</label><input type="number" id="equipment-stock-${id}" min="0" value="${getEquipmentStock(item)}"></div>
+          <button class="btn btn-primary" onclick="saveEquipmentSettings('${id}')">비품 정보 저장</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderAdminLoans() {
+  const box = document.getElementById('adminLoans');
+  const active = equipmentLoans.filter(loan => !loan.returnedAt);
+  if (!active.length) {
+    box.innerHTML = '<h3>대여 중인 비품</h3><div class="empty">현재 대여 중인 비품이 없습니다.</div>';
+    return;
+  }
+  box.innerHTML = '<h3>대여 중인 비품</h3>' + active.map(loan => `
+    <div class="admin-row"><strong>${escapeHtml(loan.itemName)} × ${escapeHtml(loan.quantity)}</strong>
+      <div class="meta">${escapeHtml(loan.facilityName)} · ${escapeHtml(loan.userName)} · 대여 ${escapeHtml(loan.borrowedAt)}</div>
+      <button class="btn btn-primary" onclick="adminReturnLoan(${Number(loan.id)})">관리자 반납 처리</button>
+    </div>`).join('');
+}
+
+function renderAdminLostReports() {
+  const box = document.getElementById('adminLost');
+  if (!lostReports.length) {
+    box.innerHTML = '<div class="empty">분실 신고가 없습니다.</div>';
+    return;
+  }
+  box.innerHTML = [...lostReports].sort((a, b) => Number(b.id) - Number(a.id)).map(report => `
+    <div class="admin-row"><strong>${escapeHtml(report.item)} · ${escapeHtml(report.location)} ${escapeHtml(report.placeDetail)}</strong>
+      <div class="meta">${escapeHtml(report.name)} (${escapeHtml(report.cls)}) · 분실일 ${escapeHtml(report.date)} · 연락 ${escapeHtml(report.contact)}<br>${escapeHtml(report.description)}</div>
+      <div class="admin-controls"><div><label>처리 상태</label><select id="admin-lost-status-${Number(report.id)}">
+        ${['분실 중', '보관 중', '반환 완료'].map(status => `<option ${ (report.status || '분실 중') === status ? 'selected' : ''}>${status}</option>`).join('')}
+      </select></div>
+      <button class="btn btn-primary" onclick="saveLostStatus(${Number(report.id)})">상태 저장</button>
+      <button class="btn-cancel" onclick="adminDeleteLostReport(${Number(report.id)})">신고 삭제</button></div>
+    </div>`).join('');
+}
+
+function renderAdminServiceRequests() {
+  const box = document.getElementById('adminServices');
+  if (!serviceRequests.length) {
+    box.innerHTML = '<div class="empty">A/S 접수가 없습니다.</div>';
+    return;
+  }
+  box.innerHTML = [...serviceRequests].sort((a, b) => Number(b.id) - Number(a.id)).map(request => `
+    <div class="admin-row"><strong>${escapeHtml(request.facilityName)} · ${escapeHtml(request.targetName)} (${escapeHtml(request.type)})</strong>
+      <div class="meta">${escapeHtml(request.requester)} · 연락 ${escapeHtml(request.contact)} · 접수 ${escapeHtml(request.createdAt)}<br>${escapeHtml(request.description)}</div>
+      <div class="admin-controls"><div><label>처리 상태</label><select id="admin-service-status-${Number(request.id)}">
+        ${['접수 완료', '처리 중', '처리 완료'].map(status => `<option ${request.status === status ? 'selected' : ''}>${status}</option>`).join('')}
+      </select></div>
+      <button class="btn btn-primary" onclick="saveServiceStatus(${Number(request.id)})">상태 저장</button>
+      <button class="btn-cancel" onclick="adminDeleteServiceRequest(${Number(request.id)})">접수 삭제</button></div>
+    </div>`).join('');
+}
+
+function renderAdminPolicy() {
+  Object.keys(DEFAULT_ADMIN_POLICY).forEach(key => {
+    document.getElementById(`policy-${key}`).value = getPolicy(key);
+  });
+  document.getElementById('policySummary').textContent =
+    `현재 기준: 이용 완료 +${getPolicy('attendanceReward')}점, 노쇼 -${getPolicy('noShowPenalty')}점, 노쇼 ${getPolicy('noShowLimit')}회마다 ${getPolicy('restrictionHours')}시간 예약 제한, ${getPolicy('priorityThreshold')}점마다 우선예약권, 일반 ${getPolicy('normalWindowDays')}일·우선권 ${getPolicy('priorityWindowDays')}일.`;
+}
+
+async function saveAdminPolicy() {
+  if (!await isOperatorAuthorized()) return showToast('관리자 로그인이 필요합니다.', true);
+  const updated = {};
+  for (const key of Object.keys(DEFAULT_ADMIN_POLICY)) {
+    const value = Number(document.getElementById(`policy-${key}`).value);
+    if (!Number.isInteger(value) || value < 1) return showToast('운영 정책 값은 1 이상의 정수로 입력해주세요.', true);
+    updated[key] = value;
+  }
+  if (updated.attendanceReward > 10000 || updated.noShowPenalty > 10000 ||
+      updated.priorityThreshold < 100 || updated.priorityThreshold > 100000 ||
+      updated.noShowLimit > 100 || updated.restrictionHours > 720 ||
+      updated.normalWindowDays > 90 || updated.priorityWindowDays <= updated.normalWindowDays ||
+      updated.priorityWindowDays > 180) {
+    return showToast('설정 범위를 확인해주세요. 우선 예약 기간은 일반 기간보다 길어야 합니다.', true);
+  }
+  adminPolicy = updated;
+  saveAdminPolicyStorage();
+  updateReservationWindow();
+  renderAdminPolicy();
+  if (currentUser) renderAccount();
+  showToast('운영 정책을 저장했습니다.');
+}
+
+function getReservationEndTime(reservation) {
+  const endTime = String(reservation.slot || '').split('~')[1]?.trim();
+  if (!endTime) return 0;
+  return new Date(`${reservation.date}T${endTime}:00+09:00`).getTime();
+}
+
+async function processAttendance(reservationId, outcome) {
+  if (!await isOperatorAuthorized()) return showToast('운영자 로그인이 필요합니다.', true);
+  if (!['attended', 'no-show'].includes(outcome)) return showToast('출결 처리 유형이 올바르지 않습니다.', true);
+  const reservation = reservations.find(item => item.id === reservationId);
+  if (!reservation || reservation.attendanceStatus) return showToast('이미 처리했거나 찾을 수 없는 예약입니다.', true);
+  if (getReservationEndTime(reservation) > Date.now()) return showToast('예약 시간이 끝난 뒤 출결을 처리할 수 있습니다.', true);
+  const attended = outcome === 'attended';
+  const attendanceReward = getPolicy('attendanceReward');
+  const noShowPenalty = getPolicy('noShowPenalty');
+  const message = attended
+    ? `${reservation.name}님의 이용 완료를 처리하고 ${attendanceReward}포인트를 지급할까요?`
+    : `${reservation.name}님의 노쇼를 처리하고 ${noShowPenalty}포인트를 차감할까요?`;
+  if (!confirm(message)) return;
+
+  const user = users.find(item => item.id === reservation.userId);
+  if (!user) return showToast('예약 회원 정보를 찾을 수 없습니다.', true);
+  user.points = Number(user.points || 0);
+  user.priorityTickets = Number(user.priorityTickets || 0);
+  if (attended) {
+    const oldEarned = Number(user.totalPointsEarned || 0);
+    user.totalPointsEarned = oldEarned + attendanceReward;
+    user.points += attendanceReward;
+    user.attendanceCount = Number(user.attendanceCount || 0) + 1;
+    const threshold = getPolicy('priorityThreshold');
+    const newTickets = Math.floor(user.totalPointsEarned / threshold) - Math.floor(oldEarned / threshold);
+    user.priorityTickets += newTickets;
+  } else {
+    user.points -= noShowPenalty;
+    user.noShowCount = Number(user.noShowCount || 0) + 1;
+    if (user.noShowCount % getPolicy('noShowLimit') === 0) {
+      const existingBlock = Date.parse(user.reservationBlockedUntil || '') || 0;
+      const blockStart = Math.max(Date.now(), existingBlock);
+      user.reservationBlockedUntil = new Date(blockStart + getPolicy('restrictionHours') * 60 * 60 * 1000).toISOString();
+    }
+  }
+  reservation.attendanceStatus = outcome;
+  reservation.attendanceProcessedAt = new Date().toLocaleString('ko-KR');
+  save();
+  saveUsers();
+  renderOperatorReservations();
+  if (currentUser?.id === user.id) renderAccount();
+  showToast(attended ? '이용 완료 처리 및 포인트 지급이 완료되었습니다.' : '노쇼 처리 및 포인트 차감이 완료되었습니다.');
+}
+
+async function hashPw(pw) {
+  try {
+    if (window.crypto && crypto.subtle) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+      return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+  } catch (e) {}
+  let h = 5381;
+  for (let i = 0; i < pw.length; i++) h = ((h << 5) + h + pw.charCodeAt(i)) | 0;
+  return 'fb' + Math.abs(h).toString(16) + '_' + pw.length;
+}
+
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'list') renderList();
+  if (id === 'lost') {
+    renderLostForm();
+    renderLostReports();
+  }
+  if (id === 'equipment') renderEquipment();
+  if (id === 'service') {
+    renderServiceForm();
+    renderServiceTargets();
+    renderMyServiceRequests();
+  }
+  if (id === 'admin') renderOperatorReservations();
+  if (id === 'account') renderAccount();
+}
+
+function renderServiceForm() {
+  const loggedIn = Boolean(currentUser);
+  document.getElementById('serviceLoginRequired').style.display = loggedIn ? 'none' : 'block';
+  document.getElementById('serviceFormBody').style.display = loggedIn ? 'block' : 'none';
+  if (loggedIn) document.getElementById('serviceRequester').textContent = `${currentUser.name} (${currentUser.cls})`;
+}
+
+function renderServiceTargets() {
+  const facilityId = document.getElementById('serviceLocation').value;
+  const facility = FACILITIES.find(item => item.id === facilityId);
+  if (!facility) {
+    document.getElementById('serviceTarget').innerHTML = '';
+    return;
+  }
+  const items = EQUIPMENT.filter(item => item.facilityId === facilityId);
+  document.getElementById('serviceTarget').innerHTML = [
+    `<option value="facility">${escapeHtml(facility.name)} 시설 자체 (바닥·조명 등)</option>`,
+    ...items.map(item => `<option value="${item.id}">${escapeHtml(getEquipmentName(item))}</option>`)
+  ].join('');
+}
+
+function submitServiceRequest() {
+  if (!currentUser) return showToast('로그인 후 A/S를 접수할 수 있습니다.', true);
+  const facilityId = document.getElementById('serviceLocation').value;
+  const facility = FACILITIES.find(item => item.id === facilityId);
+  const targetId = document.getElementById('serviceTarget').value;
+  const equipment = EQUIPMENT.find(item => item.id === targetId && item.facilityId === facilityId);
+  const targetName = targetId === 'facility' ? `${facility.name} 시설 자체` : equipment ? getEquipmentName(equipment) : '';
+  const type = document.getElementById('serviceType').value;
+  const contact = document.getElementById('serviceContact').value.trim();
+  const description = document.getElementById('serviceDescription').value.trim();
+
+  if (!facility || !targetName) return showToast('A/S 장소와 대상을 확인해주세요.', true);
+  if (!contact) return showToast('연락 방법을 입력해주세요.', true);
+  if (!description) return showToast('고장·점검 내용을 입력해주세요.', true);
+
+  serviceRequests.push({
+    id: Date.now(), userId: currentUser.id, requester: currentUser.name,
+    facilityId, facilityName: facility.name, targetName, type, contact, description,
+    status: '접수 완료', createdAt: new Date().toLocaleString('ko-KR')
+  });
+  saveServiceRequests();
+  document.getElementById('serviceContact').value = '';
+  document.getElementById('serviceDescription').value = '';
+  renderMyServiceRequests();
+  showToast('✅ A/S 요청이 접수되었습니다.');
+}
+
+function renderMyServiceRequests() {
+  const box = document.getElementById('myServiceRequests');
+  if (!currentUser) {
+    box.innerHTML = '<div class="empty">로그인하면 본인의 A/S 접수 내역을 확인할 수 있습니다.</div>';
+    return;
+  }
+  const mine = serviceRequests
+    .filter(request => request.userId === currentUser.id)
+    .sort((a, b) => Number(b.id) - Number(a.id));
+  if (!mine.length) {
+    box.innerHTML = '<div class="empty">A/S 접수 내역이 없습니다.</div>';
+    return;
+  }
+  box.innerHTML = mine.map(request => `
+    <div class="service-item">
+      <div class="report-heading">
+        <div><strong>${escapeHtml(request.facilityName)} · ${escapeHtml(request.targetName)}</strong>
+          <span class="service-status">${escapeHtml(request.status || '접수 완료')}</span></div>
+        <button class="btn-cancel" onclick="cancelServiceRequest(${Number(request.id)})">접수 취소</button>
+      </div>
+      <div class="meta">요청 유형: ${escapeHtml(request.type)} | 접수일: ${escapeHtml(request.createdAt)}<br>
+        연락 방법: ${escapeHtml(request.contact)}</div>
+      <div class="description">${escapeHtml(request.description)}</div>
+    </div>`).join('');
+}
+
+function cancelServiceRequest(requestId) {
+  const request = serviceRequests.find(item => item.id === requestId);
+  if (!currentUser || !request || request.userId !== currentUser.id)
+    return showToast('본인의 A/S 접수만 취소할 수 있습니다.', true);
+  if (!confirm('A/S 접수를 취소하시겠습니까?')) return;
+  serviceRequests = serviceRequests.filter(item => item.id !== requestId);
+  saveServiceRequests();
+  renderMyServiceRequests();
+  showToast('A/S 접수가 취소되었습니다.');
+}
+
+function getEquipmentAvailable(item) {
+  const stock = getEquipmentStock(item);
+  const borrowed = equipmentLoans
+    .filter(loan => loan.itemId === item.id && !loan.returnedAt)
+    .reduce((total, loan) => total + (Number(loan.quantity) || 0), 0);
+  return Math.min(stock, Math.max(0, stock - borrowed));
+}
+
+function renderEquipment() {
+  const location = document.getElementById('equipmentLocation').value;
+  const items = EQUIPMENT.filter(item => location === 'all' || item.facilityId === location);
+  document.getElementById('equipmentLoginRequired').style.display = currentUser ? 'none' : 'block';
+  document.getElementById('equipmentGrid').innerHTML = items.map(item => {
+    const available = getEquipmentAvailable(item);
+    const name = getEquipmentName(item);
+    const stock = getEquipmentStock(item);
+    const disabled = !currentUser || available < 1;
+    const buttonText = !currentUser ? '로그인 후 대여' : available < 1 ? '대여 불가' : '대여하기';
+    return `
+      <div class="equipment-card">
+        <div class="equipment-icon">${item.icon}</div>
+        <h3>${escapeHtml(name)}</h3>
+        <div class="meta">📍 ${escapeHtml(item.facilityName)} | 보유 ${stock}개</div>
+        <div class="meta available">대여 가능 ${available}개</div>
+        <div class="equipment-controls">
+          <input type="number" id="borrowQty-${item.id}" min="1" max="${available}" value="1" aria-label="${escapeHtml(name)} 대여 수량" ${disabled ? 'disabled' : ''}>
+          <button class="btn btn-primary" onclick="borrowEquipment('${item.id}')" ${disabled ? 'disabled' : ''}>${buttonText}</button>
+        </div>
+      </div>`;
+  }).join('');
+  renderMyLoans();
+}
+
+function borrowEquipment(itemId) {
+  if (!currentUser) return showToast('로그인 후 비품을 대여할 수 있습니다.', true);
+  const item = EQUIPMENT.find(entry => entry.id === itemId);
+  if (!item) return showToast('대여할 비품을 찾을 수 없습니다.', true);
+  const quantity = Number(document.getElementById(`borrowQty-${itemId}`).value);
+  const available = getEquipmentAvailable(item);
+  if (!Number.isInteger(quantity) || quantity < 1) return showToast('대여 수량을 입력해주세요.', true);
+  if (quantity > available) return showToast(`현재 대여 가능한 수량은 ${available}개입니다.`, true);
+
+  equipmentLoans.push({
+    id: Date.now(), itemId: item.id, itemName: getEquipmentName(item),
+    facilityId: item.facilityId, facilityName: item.facilityName,
+    quantity, userId: currentUser.id, userName: currentUser.name,
+    borrowedAt: new Date().toLocaleString('ko-KR'), returnedAt: null
+  });
+  saveEquipmentLoans();
+  renderEquipment();
+  showToast(`✅ ${getEquipmentName(item)} ${quantity}개를 대여했습니다.`);
+}
+
+function renderMyLoans() {
+  const box = document.getElementById('myLoans');
+  if (!currentUser) {
+    box.innerHTML = '<div class="empty">로그인하면 내가 대여한 비품을 확인할 수 있습니다.</div>';
+    return;
+  }
+  const mine = equipmentLoans
+    .filter(loan => loan.userId === currentUser.id && !loan.returnedAt)
+    .sort((a, b) => a.borrowedAt.localeCompare(b.borrowedAt));
+  if (!mine.length) {
+    box.innerHTML = '<div class="empty">현재 대여 중인 비품이 없습니다.</div>';
+    return;
+  }
+  box.innerHTML = mine.map(loan => `
+    <div class="loan-item">
+      <div><strong>${escapeHtml(loan.itemName)} × ${escapeHtml(loan.quantity)}</strong>
+        <div class="meta">📍 ${escapeHtml(loan.facilityName)} | 대여일: ${escapeHtml(loan.borrowedAt)}</div>
+      </div>
+      <button class="btn-cancel" onclick="returnEquipment(${Number(loan.id)})">반납하기</button>
+    </div>`).join('');
+}
+
+function returnEquipment(loanId) {
+  const loan = equipmentLoans.find(entry => entry.id === loanId);
+  if (!currentUser || !loan || loan.userId !== currentUser.id || loan.returnedAt)
+    return showToast('본인이 대여 중인 비품만 반납할 수 있습니다.', true);
+  if (!confirm(`${loan.itemName} ${loan.quantity}개를 반납하시겠습니까?`)) return;
+  loan.returnedAt = new Date().toLocaleString('ko-KR');
+  saveEquipmentLoans();
+  renderEquipment();
+  showToast('비품이 반납되었습니다.');
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[char]);
+}
+
+function renderLostForm() {
+  const loggedIn = Boolean(currentUser);
+  document.getElementById('lostLoginRequired').style.display = loggedIn ? 'none' : 'block';
+  document.getElementById('lostFormBody').style.display = loggedIn ? 'block' : 'none';
+  if (loggedIn) document.getElementById('lostReporter').textContent = `${currentUser.name} (${currentUser.cls})`;
+}
+
+function submitLostReport() {
+  if (!currentUser) return showToast('로그인 후 분실 신고를 등록할 수 있습니다.', true);
+  const item = document.getElementById('lostItem').value.trim();
+  const location = document.getElementById('lostLocation').value;
+  const placeDetail = document.getElementById('lostPlaceDetail').value.trim();
+  const date = document.getElementById('lostDate').value;
+  const contact = document.getElementById('lostContact').value.trim();
+  const description = document.getElementById('lostDescription').value.trim();
+
+  if (!item) return showToast('분실 물건을 입력해주세요.', true);
+  if (!placeDetail) return showToast('분실 장소를 자세히 입력해주세요.', true);
+  if (!date) return showToast('분실 날짜를 선택해주세요.', true);
+  if (date > getToday()) return showToast('오늘 또는 이전 날짜를 선택해주세요.', true);
+  if (!contact) return showToast('연락 방법을 입력해주세요.', true);
+  if (!description) return showToast('물건 특징을 입력해주세요.', true);
+
+  lostReports.push({
+    id: Date.now(), userId: currentUser.id, name: currentUser.name, cls: currentUser.cls,
+    item, location, placeDetail, date, contact, description,
+    createdAt: new Date().toLocaleString('ko-KR')
+  });
+  saveLostReports();
+  ['lostItem', 'lostPlaceDetail', 'lostContact', 'lostDescription'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('lostDate').value = getToday();
+  renderLostReports();
+  showToast('✅ 분실 신고가 등록되었습니다!');
+}
+
+function renderLostReports() {
+  const keyword = (document.getElementById('lostSearch')?.value || '').trim().toLowerCase();
+  let reports = [...lostReports].sort((a, b) =>
+    b.date.localeCompare(a.date) || Number(b.id) - Number(a.id));
+  if (keyword) reports = reports.filter(report =>
+    `${report.item} ${report.location} ${report.placeDetail}`.toLowerCase().includes(keyword));
+
+  const box = document.getElementById('lostReportList');
+  if (!reports.length) {
+    box.innerHTML = '<div class="empty">등록된 분실 신고가 없습니다.</div>';
+    return;
+  }
+  box.innerHTML = reports.map(report => {
+    const mine = currentUser && report.userId === currentUser.id;
+    return `
+      <div class="report-item ${mine ? 'mine' : ''}">
+        <div class="report-heading">
+          <div><strong>🔎 ${escapeHtml(report.item)}</strong> <span class="report-badge">${escapeHtml(report.status || '분실 중')}</span></div>
+          ${mine ? `<button class="btn-cancel" onclick="cancelLostReport(${Number(report.id)})">신고 취소</button>` : ''}
+        </div>
+        <div class="meta">📍 ${escapeHtml(report.location)} ${escapeHtml(report.placeDetail)} | 📅 ${escapeHtml(report.date)}<br>
+          👤 ${escapeHtml(report.name)} (${escapeHtml(report.cls)}) | 📞 ${escapeHtml(report.contact)}<br>
+          등록일: ${escapeHtml(report.createdAt)}</div>
+        <div class="description">${escapeHtml(report.description)}</div>
+      </div>`;
+  }).join('');
+}
+
+function cancelLostReport(id) {
+  const report = lostReports.find(item => item.id === id);
+  if (!currentUser || !report || report.userId !== currentUser.id)
+    return showToast('본인의 신고만 취소할 수 있습니다.', true);
+  if (!confirm('분실 신고를 취소하시겠습니까?')) return;
+  lostReports = lostReports.filter(item => item.id !== id);
+  saveLostReports();
+  renderLostReports();
+  showToast('분실 신고가 취소되었습니다.');
+}
+
+function clearLostSearch() {
+  document.getElementById('lostSearch').value = '';
+  renderLostReports();
+}
+
+function renderFacilities() {
+  const openFacilities = FACILITIES.filter(isFacilityOpen);
+  document.getElementById('facilityGrid').innerHTML = openFacilities.length ? openFacilities.map(f => `
+    <div class="facility-card ${selectedFacility && selectedFacility.id === f.id ? 'selected' : ''}" onclick="pickFacility('${f.id}')">
+      <div class="icon">${f.icon}</div>
+      <h3>${f.name}</h3>
+      <span class="capacity-badge">최대 ${getFacilityCapacity(f)}명</span>
+    </div>
+  `).join('') : '<div class="empty">현재 예약 가능한 시설이 없습니다.</div>';
+}
+
+async function saveAdminMember(userId) {
+  if (!await isOperatorAuthorized()) return showToast('관리자 로그인이 필요합니다.', true);
+  const user = users.find(item => item.id === userId);
+  if (!user) return showToast('회원을 찾을 수 없습니다.', true);
+  const name = document.getElementById(`admin-name-${userId}`).value.trim();
+  const cls = document.getElementById(`admin-class-${userId}`).value.trim();
+  const rawPhone = document.getElementById(`admin-phone-${userId}`).value.trim();
+  const phone = rawPhone ? normalizePhone(rawPhone) : '';
+  const points = Number(document.getElementById(`admin-points-${userId}`).value);
+  const tickets = Number(document.getElementById(`admin-tickets-${userId}`).value);
+  const newPassword = document.getElementById(`admin-password-${userId}`).value;
+  if (!name || !cls) return showToast('이름과 학반을 입력해주세요.', true);
+  if (rawPhone && !phone) return showToast('전화번호 형식이 올바르지 않습니다.', true);
+  if (!Number.isInteger(points) || !Number.isInteger(tickets) || tickets < 0)
+    return showToast('포인트와 우선예약권은 정수로 입력해주세요.', true);
+  if (newPassword && newPassword.length < 4) return showToast('새 비밀번호는 4자 이상이어야 합니다.', true);
+
+  user.name = name;
+  user.cls = cls;
+  user.phone = phone;
+  user.points = points;
+  user.priorityTickets = tickets;
+  if (newPassword) user.pw = await hashPw(newPassword);
+  saveUsers();
+  updateReservationWindow();
+  renderAdminMembers();
+  renderAdminOverview();
+  if (currentUser?.id === user.id) renderAccount();
+  showToast('회원 정보가 저장되었습니다.');
+}
+
+async function toggleMemberActive(userId) {
+  if (!await isOperatorAuthorized()) return showToast('관리자 로그인이 필요합니다.', true);
+  const user = users.find(item => item.id === userId);
+  if (!user) return showToast('회원을 찾을 수 없습니다.', true);
+  const disabling = user.active !== false;
+  if (!confirm(disabling ? `${user.name} 회원 계정을 정지할까요?` : `${user.name} 회원 계정을 다시 활성화할까요?`)) return;
+  user.active = !disabling;
+  saveUsers();
+  if (currentUser?.id === user.id && disabling) {
+    currentUser = null;
+    localStorage.removeItem('bmaco_session');
+    renderAccount();
+  }
+  renderAdminMembers();
+  renderAdminOverview();
+  showToast(disabling ? '회원 계정이 정지되었습니다.' : '회원 계정이 활성화되었습니다.');
+}
+
+async function clearMemberRestriction(userId) {
+  if (!await isOperatorAuthorized()) return showToast('관리자 로그인이 필요합니다.', true);
+  const user = users.find(item => item.id === userId);
+  if (!user) return showToast('회원을 찾을 수 없습니다.', true);
+  delete user.reservationBlockedUntil;
+  saveUsers();
+  renderAdminMembers();
+  if (currentUser?.id === user.id) renderAccount();
+  showToast('예약 제한이 해제되었습니다.');
+}
+
+async function saveFacilityCapacity(facilityId) {
+  if (!await isOperatorAuthorized()) return showToast('관리자 로그인이 필요합니다.', true);
+  const facility = FACILITIES.find(item => item.id === facilityId);
+  const capacity = Number(document.getElementById(`facility-cap-${facilityId}`).value);
+  if (!facility || !Number.isInteger(capacity) || capacity < 1 || capacity > 500)
+    return showToast('최대 인원은 1~500명으로 입력해주세요.', true);
+  facilitySettings[facilityId] = { ...facilitySettings[facilityId], cap: capacity };
+  saveFacilitySettings();
+  renderAdminFacilities();
+  renderFacilities();
+  if (selectedFacility?.id === facilityId) renderSlots();
+  showToast(`${facility.name} 최대 인원을 ${capacity}명으로 저장했습니다.`);
+}
+
+async function toggleFacilityOpen(facilityId) {
+  if (!await isOperatorAuthorized()) return showToast('관리자 로그인이 필요합니다.', true);
+  const facility = FACILITIES.find(item => item.id === facilityId);
+  if (!facility) return showToast('시설을 찾을 수 없습니다.', true);
+  facilitySettings[facilityId] = { ...facilitySettings[facilityId], open: !isFacilityOpen(facility) };
+  saveFacilitySettings();
+  renderAdminFacilities();
+  renderFacilities();
+  showToast(`${facility.name} 예약 상태를 변경했습니다.`);
+}
+
+async function saveEquipmentSettings(itemId) {
+  if (!await isOperatorAuthorized()) return showToast('관리자 로그인이 필요합니다.', true);
+  const item = EQUIPMENT.find(entry => entry.id === itemId);
+  if (!item) return showToast('비품을 찾을 수 없습니다.', true);
+  const name = document.getElementById(`equipment-name-${itemId}`).value.trim();
+  const stock = Number(document.getElementById(`equipment-stock-${itemId}`).value);
+  const borrowed = equipmentLoans.filter(loan => loan.itemId === itemId && !loan.returnedAt)
+    .reduce((sum, loan) => sum + Number(loan.quantity || 0), 0);
+  if (!name || name.length > 50) return showToast('비품명은 1~50자로 입력해주세요.', true);
+  if (!Number.isInteger(stock) || stock < borrowed || stock > 1000)
+    return showToast(`보유 수량은 대여 중인 ${borrowed}개 이상, 최대 1000개로 입력해주세요.`, true);
+  equipmentNames[itemId] = name;
+  equipmentStocks[itemId] = stock;
+  saveEquipmentNames();
+  saveEquipmentStocks();
+  renderAdminEquipment();
+  renderEquipment();
+  renderServiceTargets();
+  showToast('비품 정보가 저장되었습니다.');
+}
+
+async function adminReturnLoan(loanId) {
+  if (!await isOperatorAuthorized()) return showToast('관리자 로그인이 필요합니다.', true);
+  const loan = equipmentLoans.find(item => item.id === loanId && !item.returnedAt);
+  if (!loan) return showToast('대여 내역을 찾을 수 없습니다.', true);
+  if (!confirm(`${loan.itemName} ${loan.quantity}개를 반납 처리할까요?`)) return;
+  loan.returnedAt = new Date().toLocaleString('ko-KR');
+  saveEquipmentLoans();
+  renderAdminLoans();
+  renderEquipment();
+  renderAdminOverview();
+  showToast('비품 반납 처리되었습니다.');
+}
+
+async function saveLostStatus(reportId) {
+  if (!await isOperatorAuthorized()) return showToast('관리자 로그인이 필요합니다.', true);
+  const report = lostReports.find(item => item.id === reportId);
+  if (!report) return showToast('분실 신고를 찾을 수 없습니다.', true);
+  report.status = document.getElementById(`admin-lost-status-${reportId}`).value;
+  saveLostReports();
+  renderAdminLostReports();
+  renderLostReports();
+  renderAdminOverview();
+  showToast('분실 신고 상태를 저장했습니다.');
+}
+
+async function adminDeleteLostReport(reportId) {
+  if (!await isOperatorAuthorized()) return showToast('관리자 로그인이 필요합니다.', true);
+  if (!confirm('분실 신고를 삭제할까요?')) return;
+  lostReports = lostReports.filter(item => item.id !== reportId);
+  saveLostReports();
+  renderAdminLostReports();
+  renderLostReports();
+  renderAdminOverview();
+}
+
+async function saveServiceStatus(requestId) {
+  if (!await isOperatorAuthorized()) return showToast('관리자 로그인이 필요합니다.', true);
+  const request = serviceRequests.find(item => item.id === requestId);
+  if (!request) return showToast('A/S 접수를 찾을 수 없습니다.', true);
+  request.status = document.getElementById(`admin-service-status-${requestId}`).value;
+  saveServiceRequests();
+  renderAdminServiceRequests();
+  renderMyServiceRequests();
+  renderAdminOverview();
+  showToast('A/S 처리 상태를 저장했습니다.');
+}
+
+async function adminDeleteServiceRequest(requestId) {
+  if (!await isOperatorAuthorized()) return showToast('관리자 로그인이 필요합니다.', true);
+  if (!confirm('A/S 접수를 삭제할까요?')) return;
+  serviceRequests = serviceRequests.filter(item => item.id !== requestId);
+  saveServiceRequests();
+  renderAdminServiceRequests();
+  renderMyServiceRequests();
+  renderAdminOverview();
+}
+
+async function adminCancelReservation(reservationId) {
+  if (!await isOperatorAuthorized()) return showToast('관리자 로그인이 필요합니다.', true);
+  const reservation = reservations.find(item => item.id === reservationId);
+  if (!reservation || reservation.attendanceStatus) return showToast('출결 처리된 예약은 삭제할 수 없습니다.', true);
+  if (!confirm(`${reservation.name}님의 예약을 삭제할까요?`)) return;
+  const startsAt = new Date(`${reservation.date}T${String(reservation.slot).split('~')[0].trim()}:00+09:00`).getTime();
+  const user = users.find(item => item.id === reservation.userId);
+  if (reservation.priorityTicketUsed && startsAt > Date.now() && user) {
+    user.priorityTickets = Number(user.priorityTickets || 0) + 1;
+    saveUsers();
+  }
+  reservations = reservations.filter(item => item.id !== reservationId);
+  save();
+  renderAdminReservations();
+  renderAdminOverview();
+  renderList();
+  if (currentUser && currentUser.id === reservation.userId) renderAccount();
+  showToast('예약을 삭제했습니다.');
+}
+
+function pickFacility(id) {
+  selectedFacility = FACILITIES.find(f => f.id === id);
+  if (!selectedFacility || !isFacilityOpen(selectedFacility)) {
+    selectedFacility = null;
+    return showToast('현재 예약할 수 없는 시설입니다.', true);
+  }
+  selectedSlot = null;
+  document.getElementById('stepDate').style.display = 'block';
+  document.getElementById('stepSlot').style.display = 'none';
+  document.getElementById('stepForm').style.display = 'none';
+  renderFacilities();
+  renderSlots();
+}
+
+function getToday() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function normalizePhone(phone) {
+  let digits = String(phone || '').replace(/\D/g, '');
+  if (digits.startsWith('82')) digits = '0' + digits.slice(2);
+  return /^01[016789]\d{7,8}$/.test(digits) ? digits : '';
+}
+
+function usedCount(facilityId, date, slotLabel) {
+  return reservations
+    .filter(r => r.facilityId === facilityId && r.date === date && r.slot === slotLabel)
+    .reduce((sum, r) => sum + r.count, 0);
+}
+
+function renderSlots() {
+  const date = document.getElementById('dateInput').value;
+  if (!date) return;
+  if (date < getToday()) {
+    showToast('오늘 이후의 날짜를 선택해주세요.', true);
+    document.getElementById('dateInput').value = getToday();
+    return;
+  }
+  const normalDays = getPolicy('normalWindowDays');
+  const priorityDays = getPolicy('priorityWindowDays');
+  const maxDate = currentUser && Number(currentUser.priorityTickets || 0) > 0 ? dateAfter(priorityDays) : dateAfter(normalDays);
+  if (date > maxDate) {
+    showToast(currentUser && Number(currentUser.priorityTickets || 0) > 0
+      ? `우선예약권으로 예약 가능한 날짜는 최대 ${priorityDays}일 이내입니다.`
+      : `일반 예약은 ${normalDays}일 이내입니다. 우선예약권이 필요합니다.`, true);
+    document.getElementById('dateInput').value = maxDate;
+    return;
+  }
+  const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+  const day = new Date(date + 'T00:00:00').getDay();
+  document.getElementById('stepSlot').style.display = 'block';
+  document.getElementById('slotInfo').textContent = `— ${selectedFacility.name} / ${date} (${dayNames[day]})`;
+  const slots = getSlotsForDate(date);
+  if (!slots.length) {
+    selectedSlot = null;
+    document.getElementById('stepForm').style.display = 'none';
+    document.getElementById('slotList').innerHTML = '<div class="empty" style="width:100%">토요일은 휴무입니다.</div>';
+    return;
+  }
+  if (selectedSlot && !slots.some(s => s.label === selectedSlot)) {
+    selectedSlot = null;
+    document.getElementById('stepForm').style.display = 'none';
+  }
+  document.getElementById('slotList').innerHTML = slots.map(s => {
+    const used = usedCount(selectedFacility.id, date, s.label);
+    const remain = Math.max(0, getFacilityCapacity(selectedFacility) - used);
+    const full = remain <= 0;
+    return `
+      <div class="slot ${selectedSlot === s.label ? 'selected' : ''} ${full ? 'full' : ''}"
+           ${full ? '' : `onclick="pickSlot('${s.label}')"`}>
+        ${s.label}<span class="left">잔여 ${remain}명</span>
+      </div>`;
+  }).join('');
+}
+
+function pickSlot(label) {
+  selectedSlot = label;
+  document.getElementById('stepForm').style.display = 'block';
+  document.getElementById('capText').textContent = getFacilityCapacity(selectedFacility);
+  document.getElementById('summary').innerHTML =
+    `<strong>${selectedFacility.icon} ${selectedFacility.name}</strong> | ${document.getElementById('dateInput').value} | ${label}`;
+  if (currentUser) {
+    document.getElementById('reserveLoginRequired').style.display = 'none';
+    document.getElementById('reserveFormBody').style.display = 'block';
+    document.getElementById('resMember').textContent = `${currentUser.name} (${currentUser.cls})`;
+    if (!document.getElementById('resCount').value) document.getElementById('resCount').value = 1;
+  } else {
+    document.getElementById('reserveLoginRequired').style.display = 'block';
+    document.getElementById('reserveFormBody').style.display = 'none';
+  }
+  renderSlots();
+}
+
+async function submitReservation() {
+  if (!currentUser) return showToast('로그인 후 예약할 수 있습니다.', true);
+  if (!selectedFacility || !isFacilityOpen(selectedFacility)) return showToast('현재 예약할 수 없는 시설입니다.', true);
+  const count = parseInt(document.getElementById('resCount').value, 10);
+  const date = document.getElementById('dateInput').value;
+
+  const blockUntil = Date.parse(currentUser.reservationBlockedUntil || '') || 0;
+  if (blockUntil > Date.now()) return showToast(`노쇼 누적으로 예약이 제한되어 있습니다. 해제: ${new Date(blockUntil).toLocaleString('ko-KR')}`, true);
+  const normalDays = getPolicy('normalWindowDays');
+  const priorityDays = getPolicy('priorityWindowDays');
+  const usesPriorityTicket = date > dateAfter(normalDays);
+  if (date > dateAfter(priorityDays)) return showToast(`예약은 최대 ${priorityDays}일 이내까지 가능합니다.`, true);
+  if (usesPriorityTicket && Number(currentUser.priorityTickets || 0) < 1)
+    return showToast(`${normalDays + 1}일 이후 예약에는 우선예약권 1장이 필요합니다.`, true);
+
+  if (!count || count < 1) return showToast('사용 인원을 입력해주세요.', true);
+  const capacity = getFacilityCapacity(selectedFacility);
+  if (count > capacity) return showToast(`${selectedFacility.name}은 최대 ${capacity}명까지 예약 가능합니다.`, true);
+
+  const remain = capacity - usedCount(selectedFacility.id, date, selectedSlot);
+  if (count > remain) return showToast(`해당 시간 잔여 인원은 ${remain}명입니다.`, true);
+
+  const dup = reservations.some(r =>
+    r.userId === currentUser.id && r.date === date && r.slot === selectedSlot);
+  if (dup) return showToast('같은 날짜·시간에 이미 예약한 내역이 있습니다.', true);
+
+  const reservation = {
+    id: Date.now(),
+    userId: currentUser.id,
+    facilityId: selectedFacility.id,
+    facilityName: selectedFacility.name,
+    icon: selectedFacility.icon,
+    date, slot: selectedSlot,
+    name: currentUser.name, cls: currentUser.cls, count,
+    priorityTicketUsed: usesPriorityTicket,
+    createdAt: new Date().toLocaleString('ko-KR')
+  };
+  if (usesPriorityTicket) {
+    currentUser.priorityTickets = Number(currentUser.priorityTickets || 0) - 1;
+    saveUsers();
+  }
+  reservations.push(reservation);
+  save();
+  updateReservationWindow();
+
+  selectedFacility = null;
+  selectedSlot = null;
+  document.getElementById('resCount').value = '';
+  document.getElementById('stepDate').style.display = 'none';
+  document.getElementById('stepSlot').style.display = 'none';
+  document.getElementById('stepForm').style.display = 'none';
+  renderFacilities();
+  showToast('✅ 예약이 완료되었습니다!');
+  sendReservationSms(reservation).then(result => {
+    if (result.confirmationSent && result.reminderScheduled) showToast('📩 예약 확인 문자와 15분 전 알림을 설정했습니다.');
+    else if (result.confirmationSent && result.reminderSkipped) showToast('📩 예약 확인 문자를 보냈습니다. 예약 시간이 가까워 15분 전 알림은 설정하지 못했습니다.');
+    else if (result.confirmationSent) showToast('📩 예약 확인 문자는 보냈지만 15분 전 알림 설정에 실패했습니다.', true);
+    else if (result.reminderScheduled) showToast('15분 전 알림은 설정했지만 예약 확인 문자 발송에 실패했습니다.', true);
+    else showToast(result.error || '예약은 완료됐지만 문자를 발송하지 못했습니다.', true);
+  }).catch(error => showToast(`예약은 완료됐지만 문자 알림에 실패했습니다. ${error.message}`, true));
+}
+
+async function sendReservationSms(reservation) {
+  const phone = normalizePhone(currentUser?.phone);
+  if (!phone) throw new Error('등록된 전화번호가 없습니다. 내 계정에서 전화번호를 저장해주세요.');
+  const response = await fetch('/api/reservation-sms', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      phone, name: reservation.name, facilityName: reservation.facilityName,
+      date: reservation.date, slot: reservation.slot
+    })
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || 'SMS request failed');
+  return result;
+}
+
+async function signup() {
+  const id = document.getElementById('suId').value.trim();
+  const pw = document.getElementById('suPw').value;
+  const pw2 = document.getElementById('suPw2').value;
+  const name = document.getElementById('suName').value.trim();
+  const cls = document.getElementById('suClass').value.trim();
+  const phone = normalizePhone(document.getElementById('suPhone').value);
+
+  if (!/^[a-zA-Z0-9_]{4,20}$/.test(id)) return showToast('아이디는 영문/숫자/_ 4~20자로 입력해주세요.', true);
+  if (users.some(u => u.username === id)) return showToast('이미 사용 중인 아이디입니다.', true);
+  if (pw.length < 4) return showToast('비밀번호는 4자 이상 입력해주세요.', true);
+  if (pw !== pw2) return showToast('비밀번호가 일치하지 않습니다.', true);
+  if (!name) return showToast('이름을 입력해주세요.', true);
+  if (!cls) return showToast('학반을 입력해주세요.', true);
+  if (!phone) return showToast('전화번호를 올바르게 입력해주세요. (예: 010-1234-5678)', true);
+
+  const user = {
+    id: 'u' + Date.now(),
+    username: id,
+    pw: await hashPw(pw),
+    name, cls, phone, active: true,
+    createdAt: new Date().toLocaleString('ko-KR')
+  };
+  users.push(user);
+  saveUsers();
+  setSession(user);
+
+  ['suId', 'suPw', 'suPw2', 'suName', 'suClass', 'suPhone'].forEach(k => document.getElementById(k).value = '');
+  showToast(`🎉 ${name}님, 가입을 환영합니다!`);
+  switchTab('reserve');
+}
+
+async function login() {
+  const id = document.getElementById('loginId').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  if (!id || !pw) return showToast('아이디와 비밀번호를 입력해주세요.', true);
+
+  const user = users.find(u => u.username === id);
+  if (!user || user.active === false || user.pw !== await hashPw(pw)) return showToast('아이디 또는 비밀번호가 올바르지 않습니다.', true);
+
+  setSession(user);
+  document.getElementById('loginId').value = '';
+  document.getElementById('loginPw').value = '';
+  showToast(`👋 ${user.name}님, 환영합니다!`);
+  if (selectedFacility && selectedSlot) pickSlot(selectedSlot);
+  switchTab('reserve');
+}
+
+function setSession(user) {
+  currentUser = user;
+  localStorage.setItem('bmaco_session', user.id);
+  renderAccount();
+}
+
+function logout() {
+  if (!confirm('로그아웃 하시겠습니까?')) return;
+  currentUser = null;
+  localStorage.removeItem('bmaco_session');
+  renderAccount();
+  if (selectedFacility && selectedSlot) pickSlot(selectedSlot);
+  showToast('로그아웃되었습니다.');
+}
+
+function renderAccount() {
+  document.querySelector('[data-tab="account"]').textContent = currentUser ? '내 계정' : '로그인 / 회원가입';
+  document.getElementById('loggedOutArea').style.display = currentUser ? 'none' : 'block';
+  document.getElementById('loggedInArea').style.display = currentUser ? 'block' : 'none';
+  updateReservationWindow();
+  if (currentUser) {
+    document.getElementById('profileBox').innerHTML = `
+      <strong>${currentUser.name}</strong> <span class="mine-badge">${currentUser.cls}</span>
+      <small>아이디: ${currentUser.username} | 가입일: ${currentUser.createdAt}</small>`;
+    document.getElementById('profilePhone').value = currentUser.phone || '';
+    const points = Number(currentUser.points || 0);
+    const tickets = Number(currentUser.priorityTickets || 0);
+    const blockUntil = Date.parse(currentUser.reservationBlockedUntil || '') || 0;
+    const restriction = blockUntil > Date.now()
+      ? `예약 제한 중 (해제: ${new Date(blockUntil).toLocaleString('ko-KR')})`
+      : '현재 예약 제한 없음';
+    document.getElementById('pointsSummary').innerHTML = `
+      ⭐ 보유 포인트: <strong>${points}점</strong> | 누적 적립: ${Number(currentUser.totalPointsEarned || 0)}점<br>
+      🎟️ 우선예약권: <strong>${tickets}장</strong> | 이용 완료: ${Number(currentUser.attendanceCount || 0)}회 | 노쇼: ${Number(currentUser.noShowCount || 0)}회<br>
+      ${restriction}<br><small>노쇼 없는 이용 1회 +${getPolicy('attendanceReward')}점 · 노쇼 1회 -${getPolicy('noShowPenalty')}점 · 누적 적립 ${getPolicy('priorityThreshold')}점마다 우선예약권 1장</small>`;
+    const mine = reservations
+      .filter(r => r.userId === currentUser.id)
+      .sort((a, b) => (a.date + a.slot).localeCompare(b.date + b.slot));
+    document.getElementById('myBox').innerHTML = mine.length ? mine.map(r => `
+      <div class="reservation-item mine">
+        <div class="info">
+          <strong>${r.icon} ${r.facilityName}</strong>
+          <div class="meta">📅 ${r.date} | 🕐 ${r.slot} | 👥 ${r.count}명${r.priorityTicketUsed ? ' | 🎟️ 우선예약권 사용' : ''}${r.attendanceStatus === 'attended' ? ' | 이용 완료' : r.attendanceStatus === 'no-show' ? ' | 노쇼' : ''}</div>
+        </div>
+        <button class="btn-cancel" onclick="cancelReservation(${r.id})">예약 취소</button>
+      </div>
+    `).join('') : '<div class="empty">예약 내역이 없습니다. 시설을 예약해보세요!</div>';
+  }
+}
+
+function updatePhone() {
+  if (!currentUser) return showToast('로그인 후 전화번호를 저장할 수 있습니다.', true);
+  const phone = normalizePhone(document.getElementById('profilePhone').value);
+  if (!phone) return showToast('전화번호를 올바르게 입력해주세요. (예: 010-1234-5678)', true);
+  currentUser.phone = phone;
+  saveUsers();
+  document.getElementById('profilePhone').value = phone;
+  renderAccount();
+  showToast('알림 전화번호가 저장되었습니다.');
+}
+
+function renderList() {
+  const keyword = document.getElementById('searchName').value.trim();
+  const dateFilter = document.getElementById('searchDate').value;
+  let list = [...reservations].sort((a, b) =>
+    (a.date + a.slot).localeCompare(b.date + b.slot));
+
+  if (keyword) list = list.filter(r => r.name.includes(keyword));
+  if (dateFilter) list = list.filter(r => r.date === dateFilter);
+
+  const box = document.getElementById('listBox');
+  if (!list.length) {
+    box.innerHTML = '<div class="empty">예약 내역이 없습니다. 시설을 예약해보세요!</div>';
+    return;
+  }
+  box.innerHTML = list.map(r => {
+    const mine = currentUser && r.userId === currentUser.id;
+    return `
+    <div class="reservation-item ${mine ? 'mine' : ''}">
+      <div class="info">
+        <strong>${r.icon} ${r.facilityName}</strong> &mdash; ${r.name} (${r.cls})${mine ? '<span class="mine-badge">내 예약</span>' : ''}
+        <div class="meta">📅 ${r.date} | 🕐 ${r.slot} | 👥 ${r.count}명${r.priorityTicketUsed ? ' | 🎟️ 우선예약권 사용' : ''}${r.attendanceStatus === 'attended' ? ' | 이용 완료' : r.attendanceStatus === 'no-show' ? ' | 노쇼' : ''}</div>
+      </div>
+      ${mine ? `<button class="btn-cancel" onclick="cancelReservation(${r.id})">예약 취소</button>` : ''}
+    </div>
+  `;
+  }).join('');
+}
+
+function cancelReservation(id) {
+  const r = reservations.find(x => x.id === id);
+  if (!currentUser || !r || r.userId !== currentUser.id)
+    return showToast('본인의 예약만 취소할 수 있습니다.', true);
+  if (r.attendanceStatus) return showToast('출결 처리된 예약은 취소할 수 없습니다.', true);
+  if (!confirm('정말 예약을 취소하시겠습니까?')) return;
+  const startsAt = new Date(`${r.date}T${String(r.slot).split('~')[0].trim()}:00+09:00`).getTime();
+  if (r.priorityTicketUsed && startsAt > Date.now()) {
+    currentUser.priorityTickets = Number(currentUser.priorityTickets || 0) + 1;
+    saveUsers();
+  }
+  reservations = reservations.filter(x => x.id !== id);
+  save();
+  updateReservationWindow();
+  renderList();
+  renderAccount();
+  showToast('예약이 취소되었습니다.');
+}
+
+function clearSearch() {
+  document.getElementById('searchName').value = '';
+  document.getElementById('searchDate').value = '';
+  renderList();
+}
+
+let toastTimer;
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = 'toast', 2500);
+}
+
+document.getElementById('dateInput').value = getToday();
+document.getElementById('dateInput').min = getToday();
+document.getElementById('lostDate').value = getToday();
+document.getElementById('lostDate').max = getToday();
+renderFacilities();
+renderList();
+renderAccount();
+renderLostForm();
+renderLostReports();
+</script>
+</body>
+</html>
